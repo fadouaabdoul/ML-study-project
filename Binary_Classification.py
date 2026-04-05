@@ -5,9 +5,10 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, confusion_matrix
 
 
+path = "https://github.com/fadouaabdoul/ML-study-project/blob/main/Telco_customer_churn.csv"
 
 def load_data(path):
-    df = pd.read_csv(path)
+    df = pd.read_csv(path, on_bad_lines='skip')
     return df
 
 
