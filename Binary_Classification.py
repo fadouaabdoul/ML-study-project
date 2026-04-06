@@ -5,29 +5,25 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, confusion_matrix
 
 
-path = "https://github.com/fadouaabdoul/ML-study-project/blob/main/Telco_customer_churn.csv"
-
 def load_data(path):
-    df = pd.read_csv(path, on_bad_lines='skip')
+    df = pd.read_csv("Telco_customer_churn.csv", on_bad_lines='skip')
     return df
 
 
 def clean_data(df):
-    df["TotalCharges"] = pd.to_numeric(df["TotalCharges"], errors="coerce")
+    df["Total Charges"] = pd.to_numeric(df["Total Charges"], errors="coerce")
 
     df = df.dropna()
 
-    df = df.drop("customerID", axis=1)
+    df = df.drop("CustomerID", axis=1)
+    
 
     return df
 
-
-
 def preprocess_data(df):
-    df["Churn"] = df["Churn"].map({"Yes": 1, "No": 0})
 
-    X = df.drop("Churn", axis=1)
-    y = df["Churn"]
+    X = df.drop("Churn Value", axis=1)
+    y = df["Churn Value"]
 
     X = pd.get_dummies(X, drop_first=True)
 
@@ -36,8 +32,12 @@ def preprocess_data(df):
 
 
 def split_data(X, y):
-    return train_test_split(X, y, test_size=0.2, random_state=42)
-
+    return train_test_split(
+        X, y,
+        test_size=0.2,
+        random_state=42,
+        stratify=y   
+    )
 
 
 def scale_data(X_train, X_test):
@@ -47,7 +47,6 @@ def scale_data(X_train, X_test):
     X_test = scaler.transform(X_test)
 
     return X_train, X_test
-
 
 
 def train_model(X_train, y_train):
