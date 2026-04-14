@@ -9,6 +9,9 @@ def load_data(path):
     df = pd.read_csv("Telco_customer_churn.csv", on_bad_lines='skip')
     return df
 
+def encode_data(df):
+    df = pd.get_dummies(df, drop_first=True)
+    return df
 
 def clean_data(df):
     df["Total Charges"] = pd.to_numeric(df["Total Charges"], errors="coerce")
@@ -16,31 +19,25 @@ def clean_data(df):
     df = df.dropna()
 
     df = df.drop("CustomerID", axis=1)
-    
 
-    return df
+    return df 
 
-def preprocess_data(df):
-
+def split_data(df):
     X = df.drop("Churn Value", axis=1)
     y = df["Churn Value"]
 
     X = pd.get_dummies(X, drop_first=True)
 
-    return X, y
-
-
-
-def split_data(X, y):
-    return train_test_split(
-        X, y,
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, 
         test_size=0.2,
         random_state=42,
-        stratify=y   
+         
     )
+    return X_train, X_test, y_train, y_test
 
 
-def scale_data(X_train, X_test):
+def scaling_data(X_train, X_test):
     scaler = StandardScaler()
 
     X_train = scaler.fit_transform(X_train)
@@ -48,13 +45,10 @@ def scale_data(X_train, X_test):
 
     return X_train, X_test
 
-
 def train_model(X_train, y_train):
     model = LogisticRegression()
     model.fit(X_train, y_train)
     return model
-
-
 
 def evaluate_model(model, X_test, y_test):
     y_pred = model.predict(X_test)
@@ -65,22 +59,27 @@ def evaluate_model(model, X_test, y_test):
     print("\nClassification Report:")
     print(classification_report(y_test, y_pred))
 
-
 def main():
     
     df = load_data("WA_Fn-UseC_-Telco-Customer-Churn.csv")
-
     df = clean_data(df)
+    df = encode_data(df)
+    X_train, X_test, y_train, y_test = split_data(df)
 
-    X, y = preprocess_data(df)
+    X_train, X_test = scaling_data(X_train, X_test)   
 
-    X_train, X_test, y_train, y_test = split_data(X, y)
 
-    X_train, X_test = scale_data(X_train, X_test)
+    print("AFTER LOAD")
+    print(df["Churn Value"].value_counts()) 
 
+    print("x and y training datset", X_train, y_train)  
+    
     model = train_model(X_train, y_train)
-
     evaluate_model(model, X_test, y_test)
+
+    print("split the data", df)
+
+   
 
 
 if __name__ == "__main__":
